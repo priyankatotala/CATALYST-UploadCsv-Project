@@ -1,18 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Upload CSV file intoPostgreSQL using php</title>
-
-	
-</head>
-
-<!-- form to upload the csv file -->
-<body>
-
-
 <?php 
 
-// Connecting to the created database dbcsv
+// Connecting to the created database postgres
 
 $con = pg_connect("host=localhost dbname=postgres user=username password=password");
 if(!$con) {
@@ -24,79 +12,55 @@ $pgsql1 =<<<EOF
 	CREATE TABLE users
 	(
 	id serial NOT NULL,
-	name character varying(50),
-	surname character varying(50),
-	email character varying(50));
+	name varchar(50),
+	surname varchar(50),
+	email varchar(50));
 EOF;
  
-	$query = pg_query($con, $pgsql1);
+	$query1 = pg_query($con, $pgsql1);
 	if(!$pgsql1)
 	{
 		echo pg_last_error($con);
 	}
 		
-		
- 	 if(isset($_POST["submit"])){
-		
-		$filename = $_FILES['csvusers']['name'];		
- 
- 
-		 if($_FILES["csvusers"]["size"] > 0)
-		 {
-			
-			$fname = $_FILES['csvusers'] ['tmp_name'];
-		  	$file = fopen($fname, "r");
-			fgetcsv($file);
+// path of the csv file location
+define('CSV_PATH',"\home\priyanka\Desktop\");
 
-	        while (($getData = fgetcsv($file, 10000, ",")) !== FALSE)
-	         {
+// Name of the csv file
+$csv_user = CSV_PATH. 'users.csv';
 
-			// Convert name and surname to First letter capital and rest in lowercase alphabets
-	         	$getData[0] = ucfirst(strtolower(pg_escape_string($getData[0])));
+// Reading the csv file
+if (($csvopen = fopen($csv_user, 'r')) !== FALSE) 
+	{
+fgetcsv($csvopen);
+while (($data = fgetcsv($csvopen, 1000, ",")) !== FALSE) 
+	{
+	$num = count ($csvData);
+	for ($c=0; $c < $num; $c++) 
+	{
+	$col[$c] = $csvData[$c];
+	}
+
+// Convert name and surname to First letter capital and rest in lowercase alphabets
+$csvData[0] = ucfirst(strtolower(pg_escape_string($csvData[0])));
+$csvData[1] = ucfirst(strtolower(pg_escape_string($csvData[1])));
 			
-			$getData[1] = ucfirst(strtolower(pg_escape_string($getData[1])));
-			
- 			// Check for email format and convert email to lower cases
-			
-			
-			$getData[2] = strtolower(filter_var($getData[2], FILTER_VALIDATE_EMAIL));
-				
-			if(!empty($getData[2]))
-				{
-				$pgsql2 =<<<EOF
+// Check for email format and convert email to lower cases
+$csvData[2] = strtolower(filter_var($csvData[2], FILTER_VALIDATE_EMAIL));
+
+// Query to insert data into database
+			if(!empty($csvData[2]))
+			{
+			$pgsql2 =<<<EOF
 	       		INSERT into users (name,surname,email) 
-                  	values ('$getData[0]','$getData[1]','$getData[2]');
+                  	values ('$csvData[0]','$csvData[1]','$csvData[2]');
 EOF;
-                   $result = pg_query($con, $pgsql2);  
-			echo "<script type=\"text/javascript\">
-				alert(\"CSV file uploadedsuccessfully\");
-				window.location = \"user_upload.php\"
-			      </script>";
- 				 }
-						
-			
-	         }
-
-			
-	         fclose($file);	
-		 }
-	} 	 
-
-
+                   $query2 = pg_query($con, $pgsql2);  
+			echo 'file imported';				
+ 			}
+			else { echo 'invalid email format'; }
+	}
+	}
+	fclose($csvopen);
 pg_close($con);
-
-
-
 ?>
-
-<form method='POST'  enctype='multipart/form-data'>
-	Upload CSV file: 
-	<input type="file" name="csvusers" />
-	<input type="submit" name="submit" value="UPLOAD">
-
-</form>
- 
-</body>
-</html>
-
-
