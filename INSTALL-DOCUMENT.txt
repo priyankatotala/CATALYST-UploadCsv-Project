@@ -3,7 +3,7 @@ INSTALLATIONS TO BE DONE
 1. Ubuntu 16.04 instance should be installed and running.
 2. PHP 7.2 version is installed.
 3. Apache/2.4.29 version is installed.
-4.  (PostgreSQL) 10.5 is installed.
+4.  (PostgreSQL) 10 is installed.
 5. To update all softwares in ubuntu type command:
    $ sudo apt-get update
 
@@ -12,16 +12,28 @@ INSTALLATIONS TO BE DONE
 
 
 7. Database and user details:
-   Database: dbcsv
+   Database: postgres
    Username: username
    Password: password
 
 8.Commands to create Database and User in POSTGRESQl:
 
-CREATE DATABASE dbcsv;
+CREATE DATABASE postgres;
 CREATE USER username WITH ENCRYPTED PASSWORD 'password';
-GRANT ALL PRIVILEGES ON DATABASE dbcsv TO username;
+GRANT ALL PRIVILEGES ON DATABASE postgres TO username;
 
+
+9. Make the user as a superuser:
+------------------------------
+postgres=> ALTER USER username WITH SUPERUSER;
+
+10.Run the user_upload.php script
+---------------------------------
+cd /var/www/html/
+php user_upload.php
+
+
+Data inserted from the csv file to database table users successfully.
 
 
 
